@@ -1,9 +1,11 @@
 # AdTerminator
 
-#### Description
-魔兽世界广告和垃圾信息过滤插件
+## Description
 
-#### Software Architecture
+World of Warcraft advertising and spam filtering addon
+
+## Software Architecture
+
 Software architecture description
 
 #### Installation
@@ -12,13 +14,13 @@ Software architecture description
 2.  xxxx
 3.  xxxx
 
-#### Instructions
+## Instructions
 
 1.  xxxx
 2.  xxxx
 3.  xxxx
 
-#### Contribution
+## Contribution
 
 1.  Fork the repository
 2.  Create Feat_xxx branch
@@ -26,7 +28,7 @@ Software architecture description
 4.  Create Pull Request
 
 
-#### Gitee Feature
+## Gitee Feature
 
 1.  You can use Readme\_XXX.md to support different languages, such as Readme\_en.md, Readme\_zh.md
 2.  Gitee blog [blog.gitee.com](https://blog.gitee.com)

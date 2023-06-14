@@ -39,3 +39,7 @@ luac.out
 *.x86_64
 *.hex
 
+# Ignore folders create by Visual Studio 2015
+/.vs/
+/ipch/
+

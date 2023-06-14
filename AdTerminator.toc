@@ -19,6 +19,7 @@
 ## X-Wago-ID: 0
 
 embeds.xml
+Bindings.xml
 
 ## AdTerminator.lua
 Addon.lua

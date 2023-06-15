@@ -19,6 +19,7 @@
 ## X-Wago-ID: 0
 
 embeds.xml
+Locale.xml
 Bindings.xml
 
 ## AdTerminator.lua

@@ -10,7 +10,7 @@
 local addonName, addonNS = ...
 local addonVersion = GetAddOnMetadata(addonName, "Version") or "1.0.0"
 
--- version, build, date, tocversion = GetBuildInfo()
+-- version, build, date, tocVersion = GetBuildInfo()
 local clientVersionString = GetBuildInfo()
 local clientBuildMajor = string.byte(clientVersionString, 1)
 

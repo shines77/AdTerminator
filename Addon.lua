@@ -3,13 +3,14 @@
 -- @Author : guoxionghui
 -- @Link   : https://github.com/guoxionghui/AdTerminator
 -- @Link   : https://gitee.com/guoxionghui/AdTerminator
--- @Create : $date_time$
--- @Date   : $date_time$
+-- @Create : $datetime$
+-- @Date   : $datetime$
 --
 
 local addonName, addonNS = ...
 local addonVersion = GetAddOnMetadata(addonName, "Version") or "1.0.0"
 
+-- version, build, date, tocversion = GetBuildInfo()
 local clientVersionString = GetBuildInfo()
 local clientBuildMajor = string.byte(clientVersionString, 1)
 
@@ -18,17 +19,16 @@ if (clientBuildMajor < 49 or clientBuildMajor > 51 or string.byte(clientVersionS
     return
 end
 
-local ShowUIPanel = LibStub('LibShowUIPanel-1.0').ShowUIPanel
+local L = LibStub('AceLocale-3.0'):GetLocale(addonName)
 
+addonNS.L = L
 addonNS.UI = {}
-addonNS.L = LibStub('AceLocale-3.0'):GetLocale(addonName)
 
 addonNS.VERSION_TEXT = addonVersion
 addonNS.VERSION = tonumber((addonVersion:gsub('(%d+)%.?', function(x)
     return format('%02d', tonumber(x))
 end))) or 0
 
-local L = AdTerminator_Locale
 local ThisAddon = _G[addonName]
 
 local CT_NewTicker = C_Timer.NewTicker
@@ -40,6 +40,8 @@ _G.BINDING_NAME_AdTerminator_SHOW_UI = addonNS.L["Show/Hide AdTerminator"]
 ---@class Addon: AceAddon-3.0, LibClass-2.0, AceConsole-3.0, AceEvent-3.0
 local Addon = LibStub('AceAddon-3.0'):NewAddon(addonName, 'LibClass-2.0', 'AceConsole-3.0', 'AceEvent-3.0')
 addonNS.Addon = Addon
+
+local AdTerminator_Visibled = false
 
 function Addon:PrintCmd(input)
     input = input:trim():match("^(.-);*$")
@@ -53,17 +55,18 @@ end
 
 function Addon:OnInitialize()
     ---@class AdTerminatorProfile
-    local profile = { --
-        global = { --
+    local profile = {
+        global = {
+            version = addonNS.VERSION,
             userCache = {},
         },
-        profile = { --
+        profile = {
             showModel = true,
         },
     }
 
     ---@type AdTerminatorProfile
-    self.db = LibStub('AceDB-3.0'):New('AdTerminator_Config', profile, true)
+    self.db = LibStub('AceDB-3.0'):New('AdTerminator_DB', profile, true)
 
     if not self.db.global.version or self.db.global.version < 10000 then
         --wipe(self.db.global.userCache)
@@ -88,8 +91,6 @@ end
 
 function Addon:OnDisable()
     -- Called when the addon is disabled
-
-    self:UnregisterEvent('ADDON_LOADED')
 
     -- Print a message to the chat frame
     self:Print("OnDisable Event Fired: bye bye.")
@@ -120,4 +121,16 @@ function Addon:ADDON_LOADED(_, addon)
 
     self:SetupUI()
     self:UnregisterEvent('ADDON_LOADED')
+end
+
+function AdTerminator_ShowUI()
+    if AdTerminator_Visibled then
+        --Hidden
+        print("Hidden AddFilter UI.")
+        AdTerminator_Visibled = false
+    else
+        --Show
+        print("Show AddFilter UI.")
+        AdTerminator_Visibled = true
+    end
 end

@@ -1,5 +1,5 @@
 <Bindings>
-    <Binding name="AdTerminator_SHOW_UI" header="CHATADFILTER" category="ADDONS">
+    <Binding name="AdTerminator_SHOW_UI" header="AdTerminator" category="ADDONS">
         AdTerminator_ShowUI()
     </Binding>
 </Bindings>

@@ -2,13 +2,13 @@
 ## Title: AdTerminator
 ## Notes: AddOn development framework
 ## Version: 1.0.0
-## Author: guoxionghui
+## Author: shines77(gz_shines@msn.com)
 ## X-Website: http://www.wowace.com
 ## X-Category: Library
 ## X-License: Limited BSD
 
-## SavedVariablesPerCharacter: AdTerminator_PerConfig
-## SavedVariables: AdTerminator_Config
+## SavedVariablesPerCharacter: AdTerminator_CharacterDB
+## SavedVariables: AdTerminator_DB
 ## OptionalDependencies: LibStub, CallbackHandler-1.0
 
 ## DefaultState: Enabled

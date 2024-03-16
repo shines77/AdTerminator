@@ -4,9 +4,6 @@ local addonName, addonNS = ...
 -- Indent chars define, default is 2 space char
 local INDENTS = "  "
 
-local _, playerClass = UnitClass("player")
-local playerClassClr = RAID_CLASS_COLORS and RAID_CLASS_COLORS[playerClass].colorStr
-
 function table_len(tab)
     local length = 0
     for k, v in pairs(tab) do
@@ -18,12 +15,14 @@ end
 local function to_string(obj)
     local str
     if type(obj) == 'string' then
-        str = '"'..obj..'"'
+        str = '\"'..obj..'\"'
+    elseif type(obj) == 'number' or type(obj) == 'boolean' or type(obj) == 'function' then
+        str = tostring(obj)
     elseif type(obj) == 'nil' then
         str = '<nil>'
     elseif type(obj) == 'table' then
         -- Error
-        str = "<table>"
+        str = "<table> ..."
     else
         -- number, boolean, function ....
         str = tostring(obj)
@@ -66,7 +65,7 @@ local function dump_table(obj)
         local key, value
         for k, v in pairs(obj) do
             if type(k) == 'string' then
-                key = '"'..k..'"'
+                key = '\"'..k..'\"'
             elseif type(k) == 'table' then
                 key = dump_sub_table(k, 1)
             elseif type(k) == 'nil' then
@@ -92,6 +91,8 @@ local function dump_to_string(obj)
     local str
     if type(obj) == 'string' then
         str = obj
+    elseif type(obj) == 'number' or type(obj) == 'boolean' or type(obj) == 'function' then
+        str = tostring(obj)
     elseif type(obj) == 'nil' then
         str = '<nil>'
     elseif type(obj) == 'table' then
@@ -110,11 +111,7 @@ function ADT_DebugPrint(txt)
     if (addonNS.EnableDebug) then
         local text = dump_to_string(txt)
         if (DEFAULT_CHAT_FRAME) then
-            if playerClassClr then
-                DEFAULT_CHAT_FRAME:AddMessage("|c"..playerClassClr..addonName.."|r: "..text)
-            else
-                DEFAULT_CHAT_FRAME:AddMessage("|cffffd200"..addonName.."|r: "..text)
-            end
+            DEFAULT_CHAT_FRAME:AddMessage("|cffffd200"..addonName.."|r: "..text)
         end
     end
 end

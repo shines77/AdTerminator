@@ -26,6 +26,7 @@ local L = LibStub('AceLocale-3.0'):GetLocale(addonName)
 
 addonNS.L = L
 addonNS.UI = {}
+addonNS.EnableDebug = false
 
 addonNS.VersionText = addonVersion
 addonNS.Version = tonumber((addonVersion:gsub('(%d+)%.?', function(x)
@@ -52,6 +53,8 @@ Addon.IsDragonflight = function()
     return (select(4, GetBuildInfo()) >= 100000)
 end
 
+Addon.Visibled = false
+
 -- load only on classic/tbc/wotlk
 if not(Addon.IsClassic() or Addon.IsTBC() or Addon.IsWrath()) then
     return
@@ -62,8 +65,6 @@ local CT_After = C_Timer.After
 
 _G.BINDING_HEADER_AdTerminator = addonName
 _G.BINDING_NAME_AdTerminator_SHOW_UI = addonNS.L["Show/Hide AdTerminator"]
-
-local AdTerminator_Visibled = false
 
 function Addon:PrintCmd(input)
     input = input:trim():match("^(.-);*$")
@@ -146,13 +147,13 @@ function Addon:ADDON_LOADED(_, addon)
 end
 
 function AdTerminator_ShowUI()
-    if AdTerminator_Visibled then
+    if Addon.Visibled then
         --Hidden
         print("Hidden AddFilter UI.")
-        AdTerminator_Visibled = false
+        Addon.Visibled = false
     else
         --Show
         print("Show AddFilter UI.")
-        AdTerminator_Visibled = true
+        Addon.Visibled = true
     end
 end

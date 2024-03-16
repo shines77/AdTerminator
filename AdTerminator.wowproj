@@ -29,8 +29,17 @@
     <Content Include="Addon.lua">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="Bindings.xml">
+      <SubType>Frame</SubType>
+    </Content>
+    <Content Include="Core\Utils.lua">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="embeds.xml">
       <SubType>Code</SubType>
+    </Content>
+    <Content Include="Locale.xml">
+      <SubType>Frame</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
@@ -237,6 +246,7 @@
     <Folder Include="Libs\AceTimer-3.0\" />
     <Folder Include="Libs\CallbackHandler-1.0\" />
     <Folder Include="Libs\LibStub\" />
+    <Folder Include="Core" />
   </ItemGroup>
   <Import Project="$(DevEnvDir)\Extensions\Tools\MSBuild\AddonStudio\Wow\3.0\WowAddonStudio.targets" />
   <!--

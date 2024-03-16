@@ -7,6 +7,8 @@
 -- @Date   : $date_time$
 --
 
+local addonName, addonNS = ...
+
 AdTerminator = LibStub("AceAddon-3.0"):NewAddon("AdTerminator", "AceConsole-3.0", "AceEvent-3.0" );
 
 function AdTerminator:PrintCmd(input)

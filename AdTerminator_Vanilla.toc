@@ -23,4 +23,5 @@ Locale.xml
 Bindings.xml
 
 ## AdTerminator.lua
+Core\Utils.lua
 Addon.lua

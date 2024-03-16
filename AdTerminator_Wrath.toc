@@ -26,3 +26,5 @@ Bindings.xml
 Core\Debug.lua
 Core\Utils.lua
 Addon.lua
+Core\Encoder.lua
+Core\ChatFilter.lua

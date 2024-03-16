@@ -32,7 +32,13 @@
     <Content Include="Bindings.xml">
       <SubType>Frame</SubType>
     </Content>
+    <Content Include="Core\ChatFilter.lua">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="Core\Debug.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Core\Encoder.lua">
       <SubType>Code</SubType>
     </Content>
     <Content Include="Core\Utils.lua">

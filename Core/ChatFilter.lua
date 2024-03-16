@@ -70,6 +70,67 @@ ChatFilter.filters["CHAT_MSG_GUILD"] = {
     lastBlockedState = false
 }
 
+local blockedKeywords = {}
+
+local function string_trim(input, first, last)
+    if (last <= first) then
+        return first, first
+    end
+    -- left trim
+    local pos = first
+    while (pos < last) do
+        local c = string_byte(input, pos)
+        if c ~= 0x20 then
+            break
+        else
+            pos = pos + 1
+        end
+    end
+    first = pos
+
+    -- Right trim
+    pos = last
+    while (pos > first) do
+        local c = string_byte(input, pos)
+        if c ~= 0x20 then
+            break
+        else
+            pos = pos - 1
+        end
+    end
+    last = pos
+    return first, last
+end
+
+--
+-- See: https://blog.csdn.net/fightsyj/article/details/85057634
+--
+local function string_split(input, delimiter, trim)
+    local arr = {}
+    if type(delimiter) ~= "string" or #delimiter <= 0 then
+        return arr
+    end
+    local start = 1
+    local delim_len = string_len(delimiter)
+    while true do
+        local pos = string_find(input, delimiter, start, true)
+        if not pos then
+            break
+        end
+        if (not trim) then
+            table_insert(arr, string_sub(input, start, pos - 1))
+        else
+            local first, last = string_trim(input, start, pos - 1)
+            if (last > first) then
+                table_insert(arr, string_sub(input, first, last))
+            end
+        end
+        start = pos + delim_len
+    end
+    table_insert(arr, string_sub(input, start))
+    return arr
+end
+
 function ChatFilter:OnInitialize()
     self.unitName = nil
     self.waitingItems = {}
@@ -84,6 +145,8 @@ function ChatFilter:OnInitialize()
             self.userCache[self.unitName][k] = v
         end,
     })
+
+    blockedKeywords = string_split(blockedKeywordsStr, ",")
 end
 
 function ChatFilter:OnAlaCommand(_, msg, channel, sender)

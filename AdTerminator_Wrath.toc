@@ -1,4 +1,4 @@
-## Interface: 30401
+## Interface: 30403
 ## Title: AdTerminator
 ## Notes: AddOn development framework
 ## Version: 1.0.0

@@ -1,45 +1,67 @@
 --
 -- Addon.lua
--- @Author : guoxionghui
--- @Link   : https://github.com/guoxionghui/AdTerminator
--- @Link   : https://gitee.com/guoxionghui/AdTerminator
--- @Create : $datetime$
--- @Date   : $datetime$
+-- @Author : GuoXH(gz_shines@msn.com)
+-- @Link   : https://github.com/shines77/AdTerminator
+-- @Link   : https://gitee.com/shines77/AdTerminator
+-- @Create : $date_time$
+-- @Date   : $date_time$
 --
 
 local addonName, addonNS = ...
+local GetAddOnMetadata = GetAddOnMetadata or C_AddOns.GetAddOnMetadata
 local addonVersion = GetAddOnMetadata(addonName, "Version") or "1.0.0"
+local addonFlavor = GetAddOnMetadata(addonName, "X-Flavor") or "Retail"
 
 -- version, build, date, tocVersion = GetBuildInfo()
 local clientVersionString = GetBuildInfo()
-local clientBuildMajor = string.byte(clientVersionString, 1)
+local _, _, clientVerMajor, clientVerMinor, clientVerPatch, clientVerBuild = string.find(clientVersionString, "^(%d+)%.?(%d+)%.?(%d+)%.?(%d+)$")
 
--- load only on classic/tbc/wotlk
-if (clientBuildMajor < 49 or clientBuildMajor > 51 or string.byte(clientVersionString, 2) ~= 46) then
-    return
-end
+clientVerMajor = tonumber(clientVerMajor)
+clientVerMinor = tonumber(clientVerMinor)
+clientVerPatch = tonumber(clientVerPatch)
+
+local ThisAddon = _G[addonName]
 
 local L = LibStub('AceLocale-3.0'):GetLocale(addonName)
 
 addonNS.L = L
 addonNS.UI = {}
 
-addonNS.VERSION_TEXT = addonVersion
-addonNS.VERSION = tonumber((addonVersion:gsub('(%d+)%.?', function(x)
+addonNS.VersionText = addonVersion
+addonNS.Version = tonumber((addonVersion:gsub('(%d+)%.?', function(x)
     return format('%02d', tonumber(x))
 end))) or 0
 
-local ThisAddon = _G[addonName]
+---@class Addon: AceAddon-3.0, LibClass-2.0, AceConsole-3.0, AceEvent-3.0
+local Addon = LibStub('AceAddon-3.0'):NewAddon(addonName, 'LibClass-2.0', 'AceConsole-3.0', 'AceEvent-3.0')
+addonNS.Addon = Addon
+
+Addon.IsRetail = function()
+    return (clientVerMajor >= 10) or (addonFlavor == "Retail")
+end
+Addon.IsWrath = function()
+    return (clientVerMajor == 3)
+end
+Addon.IsTBC = function()
+    return (clientVerMajor == 2)
+end
+Addon.IsClassic = function()
+    return (clientVerMajor == 1)
+end
+Addon.IsDragonflight = function()
+    return (select(4, GetBuildInfo()) >= 100000)
+end
+
+-- load only on classic/tbc/wotlk
+if not(Addon.IsClassic() or Addon.IsTBC() or Addon.IsWrath()) then
+    return
+end
 
 local CT_NewTicker = C_Timer.NewTicker
 local CT_After = C_Timer.After
 
 _G.BINDING_HEADER_AdTerminator = addonName
 _G.BINDING_NAME_AdTerminator_SHOW_UI = addonNS.L["Show/Hide AdTerminator"]
-
----@class Addon: AceAddon-3.0, LibClass-2.0, AceConsole-3.0, AceEvent-3.0
-local Addon = LibStub('AceAddon-3.0'):NewAddon(addonName, 'LibClass-2.0', 'AceConsole-3.0', 'AceEvent-3.0')
-addonNS.Addon = Addon
 
 local AdTerminator_Visibled = false
 
@@ -57,7 +79,7 @@ function Addon:OnInitialize()
     ---@class AdTerminatorProfile
     local profile = {
         global = {
-            version = addonNS.VERSION,
+            version = addonNS.Version,
             userCache = {},
         },
         profile = {

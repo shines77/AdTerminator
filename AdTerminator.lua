@@ -1,8 +1,8 @@
 --
 -- AdTerminator.lua
--- @Author : guoxionghui
--- @Link   : https://github.com/guoxionghui/AdTerminator
--- @Link   : https://gitee.com/guoxionghui/AdTerminator
+-- @Author : GuoXH(gz_shines@msn.com)
+-- @Link   : https://github.com/shines77/AdTerminator
+-- @Link   : https://gitee.com/shines77/AdTerminator
 -- @Create : $date_time$
 -- @Date   : $date_time$
 --

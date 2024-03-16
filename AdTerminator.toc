@@ -23,6 +23,6 @@ embeds.xml
 Locale.xml
 Bindings.xml
 
-## AdTerminator.lua
+Core\Debug.lua
 Core\Utils.lua
 Addon.lua

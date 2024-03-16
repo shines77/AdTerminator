@@ -32,6 +32,9 @@
     <Content Include="Bindings.xml">
       <SubType>Frame</SubType>
     </Content>
+    <Content Include="Core\Debug.lua">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="Core\Utils.lua">
       <SubType>Code</SubType>
     </Content>

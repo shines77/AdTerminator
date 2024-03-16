@@ -1,9 +1,11 @@
 
 local addonName, addonNS = ...
+local ThisAddon = _G[addonName]
 
 -- String functions
 local table_concat, table_insert = table.concat, table.insert
 local string_find, string_sub, string_gsub, string_match, string_gmatch = string.find, string.sub, string.gsub, string.match, string.gmatch
+local string_format = string.format
 local string_byte, string_char, string_len = string.byte, string.char, string.len
 
 local ALA_PREFIX = 'ATEADD'
@@ -15,57 +17,58 @@ local Encoder = addonNS.Encoder
 
 ---@class ChatFilter: AceAddon-3.0, AceEvent-3.0, AceComm-3.0
 local ChatFilter = addonNS.Addon:NewModule('ChatFilter', 'AceEvent-3.0', 'AceComm-3.0')
+ChatFilter.unit = nil
 
 local lastLineId = 0
 local debug_cnt = 0
 
--- ºöÂÔµÄ¿Õ°××Ö·û
+-- å¿½ç•¥çš„ç©ºç™½å­—ç¬¦
 local ignoreSpaces = {
-    " ", "¡¡",
+    " ", "ã€€",
     --".", "`", "~",
 }
 
--- ºöÂÔµÄÎ²²¿ÎŞÒâÒå×Ö·û
+-- å¿½ç•¥çš„å°¾éƒ¨æ— æ„ä¹‰å­—ç¬¦
 local ignoreTailChars = {
-    "`", "~", "@", "#", "^", "*", "=", "|", "£¬", "¡£", "¡¢", "!", "£¡"
+    "`", "~", "@", "#", "^", "*", "=", "|", "ï¼Œ", "ã€‚", "ã€", "!", "ï¼"
 }
 
--- ºöÂÔµÄ±êµã·ûºÅ
+-- å¿½ç•¥çš„æ ‡ç‚¹ç¬¦å·
 local ignoreSymbols = {
-    "`", "~", "@", "#", "^", "*", "=", "|", " ", "£¬", "¡£", "¡¢", "£¿", "£¡", "£º", "£»",
-    "¡®", "¡¯", "¡°", "¡±", "¡¾", "¡¿", "¡º", "¡»", "¡¶", "¡·", "<", ">", "£¨", "£©"
+    "`", "~", "@", "#", "^", "*", "=", "|", " ", "ï¼Œ", "ã€‚", "ã€", "ï¼Ÿ", "ï¼", "ï¼š", "ï¼›",
+    "â€˜", "â€™", "â€œ", "â€", "ã€", "ã€‘", "ã€", "ã€", "ã€Š", "ã€‹", "<", ">", "ï¼ˆ", "ï¼‰"
 }
 
-local blockedKeywordsStr = "ÕĞ±ø,ÊÖ¹¤,´¿ÊÖ,ÊÖ¶¯,¿Â»ù,¿Æ¼¼,Ô¤Ô¼,µã²Ë,´óÃ×,´óñ,ÓñÃ×,³öÃ×,ÊÕÃ×,Ä¾Ä¾,Õ¾×®,¹ÛÓ°,¿´Ñ©,ºÈ²è,µçÓ°,Ò»¼¶Ò»¸¶,Ò»¸¶Ò»,´ú¸Î,°ï¸Î,°ï´ò,ÍĞ¹Ü,¿ÉÍĞ,½â·Å,´úÁ·,´ú³ä,´ø³å,×÷Òµ,Rµã,ÏÈÁ·,ºó¸¶,³ö×°,ÔÙ¸¶,¼û×°¸¶,´¿Ğè,´ó¸ç,´óÀĞ,°ü¹ı,ÏÈR,Ñº½ğ,ÅãÍæ,Ò»Õ¾Ê½,¹ÀºÅ,¼ÓV,ÍáÍá,³ÉÆ·,¸ú´ò,´úÉÏ,ÍÑ¿Ó,Á¬Ìå,Êï¹â,Ë«Âí,ÂíÉÏ¿ª´ò,ÏÖÔÚ´ò,Î¢ĞÅ,»ÕĞÅ,Ş±ĞÅ,WCL¿É²é,²»Ç¿ÖÆ,ÎŞÑº,¿ÉÌÉ,Áé»êÊŞ,´ó½Ç,ó¦Ğ·,ROµã,roµã,rollµã,£Ò£Ï,i00,oo,½»Á÷,Ò»¼üºê,WöÎ,ÊÕöÎ,Ò»ÂÉÎÒÏÈ,1%-%-1,1%-70%-80,55%-70%-80,ÌÔ±¦,á°·çĞ¡Öş,ÁúÌÚËÄº£,Á÷ÔÆ¸ó,Á÷Ü¿¸ó,¡¶»Ô»Í¡·,¡¶Çà´º¡·"
+local blockedKeywordsStr = "æ‹›å…µ,æ‰‹å·¥,çº¯æ‰‹,æ‰‹åŠ¨,æŸ¯åŸº,ç§‘æŠ€,é¢„çº¦,ç‚¹èœ,å¤§ç±³,å¤§ä¾,ç‰ç±³,å‡ºç±³,æ”¶ç±³,æœ¨æœ¨,ç«™æ¡©,è§‚å½±,çœ‹é›ª,å–èŒ¶,ç”µå½±,ä¸€çº§ä¸€ä»˜,ä¸€ä»˜ä¸€,ä»£è‚,å¸®è‚,å¸®æ‰“,æ‰˜ç®¡,å¯æ‰˜,è§£æ”¾,ä»£ç»ƒ,ä»£å……,å¸¦å†²,ä½œä¸š,Rç‚¹,å…ˆç»ƒ,åä»˜,å‡ºè£…,å†ä»˜,è§è£…ä»˜,çº¯éœ€,å¤§å“¥,å¤§ä½¬,åŒ…è¿‡,å…ˆR,æŠ¼é‡‘,é™ªç©,ä¸€ç«™å¼,ä¼°å·,åŠ V,æ­ªæ­ª,æˆå“,è·Ÿæ‰“,ä»£ä¸Š,è„±å‘,è¿ä½“,æ›™å…‰,åŒé©¬,é©¬ä¸Šå¼€æ‰“,ç°åœ¨æ‰“,å¾®ä¿¡,å¾½ä¿¡,è–‡ä¿¡,WCLå¯æŸ¥,ä¸å¼ºåˆ¶,æ— æŠ¼,å¯èºº,çµé­‚å…½,å¤§è§’,èƒèŸ¹,ROç‚¹,roç‚¹,rollç‚¹,ï¼²ï¼¯,i00,oo,äº¤æµ,ä¸€é”®å®,Wé‘«,æ”¶é‘«,ä¸€å¾‹æˆ‘å…ˆ,1%-%-1,1%-70%-80,55%-70%-80,æ·˜å®,å²šé£å°ç­‘,é¾™è…¾å››æµ·,æµäº‘é˜,æµèŠ¸é˜,ã€Šè¾‰ç…Œã€‹,ã€Šé’æ˜¥ã€‹"
 
 ChatFilter.filters = {}
 ChatFilter.filters["CHAT_MSG_CHANNEL"] = {
-    enable = false,
+    enabled = false,
     lastLineId = 0,
     lastBlockedState = false
 }
 ChatFilter.filters["CHAT_MSG_YELL"] = {
-    enable = false,
+    enabled = false,
     lastLineId = 0,
     lastBlockedState = false
 }
 ChatFilter.filters["CHAT_MSG_EMOTE"] = {
-    enable = false,
+    enabled = false,
     lastLineId = 0,
     lastBlockedState = false
 }
 ChatFilter.filters["CHAT_MSG_WHISPER"] = {
-    enable = false,
+    enabled = false,
     lastLineId = 0,
     lastBlockedState = false
 }
 ChatFilter.filters["CHAT_MSG_SAY"] = {
-    enable = false,
+    enabled = false,
     lastLineId = 0,
     lastBlockedState = false
 }
 ChatFilter.filters["CHAT_MSG_GUILD"] = {
-    enable = false,
+    enabled = false,
     lastLineId = 0,
     lastBlockedState = false
 }
@@ -147,6 +150,10 @@ function ChatFilter:OnInitialize()
     })
 
     blockedKeywords = string_split(blockedKeywordsStr, ",")
+    ADT_DebugPrint("blockedKeywords = ", blockedKeywords)
+
+    -- Print a message to the chat frame
+    ThisAddon:Print("ChatFilter:OnInitialize Event Fired.")
 end
 
 function ChatFilter:OnAlaCommand(_, msg, channel, sender)
@@ -175,6 +182,15 @@ function ChatFilter:OnEnable()
     self:RegisterComm(ADT_PROTO_PREFIX, OnComm)
 
     self:RegisterFilters(true, true)
+
+    -- Print a message to the chat frame
+    ThisAddon:Print("ChatFilter:OnEnable Event Fired.")
+end
+
+function ChatFilter:INSPECT_READY(_, guid)
+    if not self.unit then
+        return
+    end
 end
 
 function ChatFilter:BuildCharacterDb(name)
@@ -206,19 +222,19 @@ local function containsKeyWord(text, keywords)
     return false
 end
 
-function ChatFilter:DebugPrintMessage(event, message, author, languageName, channelName, target, specialFlags, zoneChannelId, channelIndex, channelBaseName, languageId, lineId, guid, bnSenderId, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
+local function ChatFilter_DebugPrintMessage(self, event, message, author, languageName, channelName, target, specialFlags, zoneChannelId, channelIndex, channelBaseName, languageId, lineId, guid, bnSenderId, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
     ADT_DebugPrint("message = ", message)
     ADT_DebugPrint("author = ", author)
     local text = string_format("[%d][%d.%s][%s]: [%s]", lineId, channelIndex, channelBaseName, author, message)
     ADT_DebugPrint(text)
 end
 
-function ChatFilter:ChannelFilter(self, event, message, author, languageName, channelName, target, specialFlags, zoneChannelId, channelIndex, channelBaseName, languageId, lineId, guid, bnSenderId, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
-    local filter = self.filters["CHAT_MSG_CHANNEL"]
-    if filter.enable then
+local function ChatFilter_ChannelFilter(self, event, message, author, languageName, channelName, target, specialFlags, zoneChannelId, channelIndex, channelBaseName, languageId, lineId, guid, bnSenderId, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
+    local filter = ChatFilter.filters["CHAT_MSG_CHANNEL"]
+    if filter.enabled then
         if lineId ~= lastLineId then
             if debug_cnt < 100 then
-                self:DebugPrintMessage(event, message, author, languageName, channelName, target, specialFlags, zoneChannelId, channelIndex, channelBaseName, languageId, lineId, guid, bnSenderId, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
+                --ChatFilter_DebugPrintMessage(self, event, message, author, languageName, channelName, target, specialFlags, zoneChannelId, channelIndex, channelBaseName, languageId, lineId, guid, bnSenderId, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
                 debug_cnt = debug_cnt + 1
             end
             lastLineId = lineId
@@ -236,12 +252,12 @@ function ChatFilter:ChannelFilter(self, event, message, author, languageName, ch
     end
 end
 
-function ChatFilter:YellFilter(self, event, message, author, languageName, channelName, target, specialFlags, zoneChannelId, channelIndex, channelBaseName, languageId, lineId, guid, bnSenderId, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
-    local filter = self.filters["CHAT_MSG_YELL"]
-    if filter.enable then
+local function ChatFilter_YellFilter(self, event, message, author, languageName, channelName, target, specialFlags, zoneChannelId, channelIndex, channelBaseName, languageId, lineId, guid, bnSenderId, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
+    local filter = ChatFilter.filters["CHAT_MSG_YELL"]
+    if filter.enabled then
         if lineId ~= lastLineId then
             if debug_cnt < 100 then
-                self:DebugPrintMessage(event, message, author, languageName, channelName, target, specialFlags, zoneChannelId, channelIndex, channelBaseName, languageId, lineId, guid, bnSenderId, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
+                --ChatFilter_DebugPrintMessage(self, event, message, author, languageName, channelName, target, specialFlags, zoneChannelId, channelIndex, channelBaseName, languageId, lineId, guid, bnSenderId, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
                 debug_cnt = debug_cnt + 1
             end
             lastLineId = lineId
@@ -259,26 +275,31 @@ function ChatFilter:YellFilter(self, event, message, author, languageName, chann
     end
 end
 
-function ChatFilter:RegisterFilter(evnet, filter, enable, isInit)
+function ChatFilter:RegisterFilter(evnet, filterFunc, enable, isInit)
     assert(evnet)
+    ADT_DebugPrint("self.filters[evnet] = ", self.filters[evnet])
     if (self.filters[evnet]) then
         if (enable or isInit) then
             if (isInit or (not self.filters[evnet].enabled)) then
-                assert(filter)
-                ChatFrame_AddMessageEventFilter(evnet, filter)
+                assert(filterFunc)
+                ThisAddon:Print("ChatFrame_AddMessageEventFilter(): "..evnet)
+                ChatFrame_AddMessageEventFilter(evnet, filterFunc)
                 self.filters[evnet].enabled = true
+                ADT_DebugPrint("self.filters[evnet].enabled = ", self.filters[evnet].enabled)
             end
         else
             if (self.filters[evnet].enabled) then
-                assert(filter)
-                ChatFrame_RemoveMessageEventFilter(evnet, filter)
+                assert(filterFunc)
+                ThisAddon:Print("ChatFrame_RemoveMessageEventFilter(): "..evnet)
+                ChatFrame_RemoveMessageEventFilter(evnet, filterFunc)
                 self.filters[evnet].enabled = false
+                ADT_DebugPrint("self.filters[evnet].enabled = ", self.filters[evnet].enabled)
             end
         end
     end
 end
 
 function ChatFilter:RegisterFilters(enable, isInit)
-    ChatFilter:RegisterFilter("CHAT_MSG_CHANNEL", ChatFilter:ChannelFilter, enable, isInit)
-    ChatFilter:RegisterFilter("CHAT_MSG_YELL",    ChatFilter:YellFilter,    enable, isInit)
+    ChatFilter:RegisterFilter("CHAT_MSG_CHANNEL", ChatFilter_ChannelFilter, enable, isInit)
+    ChatFilter:RegisterFilter("CHAT_MSG_YELL",    ChatFilter_YellFilter,    enable, isInit)
 end

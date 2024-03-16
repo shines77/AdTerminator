@@ -111,7 +111,7 @@ local function dump_to_string(obj, addQuote)
     return str
 end
 
-local function DefaultChatFrame_AddMessage()
+local function DefaultChatFrame_AddMessage(text)
     if (DEFAULT_CHAT_FRAME) then
         DEFAULT_CHAT_FRAME:AddMessage("|c"..TitleColor..addonName.."|r: "..text)
     end

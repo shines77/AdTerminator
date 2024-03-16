@@ -35,8 +35,6 @@ ADT_DebugPrint("clientVerMajor = "..clientVerMajor)
 ADT_DebugPrint("clientVerMinor = "..clientVerMinor)
 ADT_DebugPrint("clientVerPatch = "..clientVerPatch)
 
-local ThisAddon = _G[addonName]
-
 local L = LibStub('AceLocale-3.0'):GetLocale(addonName)
 
 addonNS.L = L
@@ -50,6 +48,9 @@ end))) or 0
 ---@class Addon: AceAddon-3.0, LibClass-2.0, AceConsole-3.0, AceEvent-3.0
 local Addon = LibStub('AceAddon-3.0'):NewAddon(addonName, 'LibClass-2.0', 'AceConsole-3.0', 'AceEvent-3.0')
 addonNS.Addon = Addon
+
+_G[addonName] = Addon
+local ThisAddon = _G[addonName]
 
 Addon.IsRetail = function()
     return (clientVerMajor >= 10) or (addonFlavor == "Retail")
@@ -113,7 +114,7 @@ function Addon:OnInitialize()
     self:RegisterChatCommand("print", "PrintCmd")
 
     -- Print a message to the chat frame
-    self:Print("OnInitialize Event Fired: Hello")
+    self:Print("AdTerminator:OnInitialize Event Fired.")
 end
 
 function Addon:OnEnable()
@@ -123,14 +124,14 @@ function Addon:OnEnable()
     --self:RegisterMessage('INSPECT_READY')
 
     -- Print a message to the chat frame
-    self:Print("OnEnable Event Fired: Hello, again :-)")
+    self:Print("AdTerminator:OnEnable Event Fired.")
 end
 
 function Addon:OnDisable()
     -- Called when the addon is disabled
 
     -- Print a message to the chat frame
-    self:Print("OnDisable Event Fired: bye bye.")
+    self:Print("AdTerminator:OnDisable Event Fired.")
 end
 
 function Addon:OnModuleCreated(module)

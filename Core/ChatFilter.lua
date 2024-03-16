@@ -150,7 +150,7 @@ function ChatFilter:OnInitialize()
     })
 
     blockedKeywords = string_split(blockedKeywordsStr, ",")
-    ADT_DebugPrint("blockedKeywords = ", blockedKeywords)
+    --ADT_DebugPrint("blockedKeywords = ", blockedKeywords)
 
     -- Print a message to the chat frame
     ThisAddon:Print("ChatFilter:OnInitialize Event Fired.")
@@ -277,7 +277,6 @@ end
 
 function ChatFilter:RegisterFilter(evnet, filterFunc, enable, isInit)
     assert(evnet)
-    ADT_DebugPrint("self.filters[evnet] = ", self.filters[evnet])
     if (self.filters[evnet]) then
         if (enable or isInit) then
             if (isInit or (not self.filters[evnet].enabled)) then
@@ -285,7 +284,6 @@ function ChatFilter:RegisterFilter(evnet, filterFunc, enable, isInit)
                 ThisAddon:Print("ChatFrame_AddMessageEventFilter(): "..evnet)
                 ChatFrame_AddMessageEventFilter(evnet, filterFunc)
                 self.filters[evnet].enabled = true
-                ADT_DebugPrint("self.filters[evnet].enabled = ", self.filters[evnet].enabled)
             end
         else
             if (self.filters[evnet].enabled) then
@@ -293,7 +291,6 @@ function ChatFilter:RegisterFilter(evnet, filterFunc, enable, isInit)
                 ThisAddon:Print("ChatFrame_RemoveMessageEventFilter(): "..evnet)
                 ChatFrame_RemoveMessageEventFilter(evnet, filterFunc)
                 self.filters[evnet].enabled = false
-                ADT_DebugPrint("self.filters[evnet].enabled = ", self.filters[evnet].enabled)
             end
         end
     end

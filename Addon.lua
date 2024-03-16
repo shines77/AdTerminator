@@ -8,17 +8,32 @@
 --
 
 local addonName, addonNS = ...
+addonNS.EnableDebug = true
+
+ADT_DebugPrint("addonName = "..ADT_ToString(addonName))
+ADT_DebugPrint("addonNS = "..ADT_ToString(addonNS))
+
 local GetAddOnMetadata = GetAddOnMetadata or C_AddOns.GetAddOnMetadata
 local addonVersion = GetAddOnMetadata(addonName, "Version") or "1.0.0"
-local addonFlavor = GetAddOnMetadata(addonName, "X-Flavor") or "Retail"
+local addonFlavor = GetAddOnMetadata(addonName, "X-Flavor") or "Wrath"
+
+ADT_DebugPrint("addonVersion = "..addonVersion)
+ADT_DebugPrint("addonFlavor = "..addonFlavor)
 
 -- version, build, date, tocVersion = GetBuildInfo()
-local clientVersionString = GetBuildInfo()
-local _, _, clientVerMajor, clientVerMinor, clientVerPatch, clientVerBuild = string.find(clientVersionString, "^(%d+)%.?(%d+)%.?(%d+)%.?(%d+)$")
+local clientVersionString, clientBuild = GetBuildInfo()
+ADT_DebugPrint("clientVersionString = "..clientVersionString)
+ADT_DebugPrint("clientBuild = "..clientBuild)
+
+local _, _, clientVerMajor, clientVerMinor, clientVerPatch = string.find(clientVersionString, "^(%d+)%.?(%d+)%.?(%d+)%s*")
 
 clientVerMajor = tonumber(clientVerMajor)
 clientVerMinor = tonumber(clientVerMinor)
 clientVerPatch = tonumber(clientVerPatch)
+
+ADT_DebugPrint("clientVerMajor = "..clientVerMajor)
+ADT_DebugPrint("clientVerMinor = "..clientVerMinor)
+ADT_DebugPrint("clientVerPatch = "..clientVerPatch)
 
 local ThisAddon = _G[addonName]
 
@@ -26,7 +41,6 @@ local L = LibStub('AceLocale-3.0'):GetLocale(addonName)
 
 addonNS.L = L
 addonNS.UI = {}
-addonNS.EnableDebug = false
 
 addonNS.VersionText = addonVersion
 addonNS.Version = tonumber((addonVersion:gsub('(%d+)%.?', function(x)

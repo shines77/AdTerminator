@@ -102,11 +102,11 @@ local function dump_to_string(obj)
     return str
 end
 
-function addonNS.ToString(var)
+function ADT_ToString(var)
     return dump_to_string(var)
 end
 
-function addonNS.DebugPrint(txt)
+function ADT_DebugPrint(txt)
     if (addonNS.EnableDebug) then
         local text = dump_to_string(txt)
         if (DEFAULT_CHAT_FRAME) then

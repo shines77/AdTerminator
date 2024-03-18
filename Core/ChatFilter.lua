@@ -17,7 +17,9 @@ local Encoder = addonNS.Encoder
 
 ---@class ChatFilter: AceAddon-3.0, AceEvent-3.0, AceComm-3.0
 local ChatFilter = addonNS.Addon:NewModule('ChatFilter', 'AceEvent-3.0', 'AceComm-3.0')
-ChatFilter.unit = nil
+ChatFilter.realm = nil
+ChatFilter.name = nil
+ChatFilter.userCache = nil
 
 local lastLineId = 0
 local debug_cnt = 0
@@ -135,17 +137,19 @@ local function string_split(input, delimiter, trim)
 end
 
 function ChatFilter:OnInitialize()
-    self.unitName = nil
+    self.realm = nil
+    self.name = nil
     self.waitingItems = {}
     self.userCache = addonNS.Addon.db.global.userCache
 
     self.db = setmetatable({}, {
         __index = function(_, k)
-            return self.userCache[self.unitName] and self.userCache[self.unitName][k]
+            return self.userCache[self.realm] and self.userCache[self.realm][self.name] and self.userCache[self.realm][self.name][k]
         end,
         __newindex = function(_, k, v)
-            self.userCache[self.unitName] = self.userCache[self.unitName] or {}
-            self.userCache[self.unitName][k] = v
+            self.userCache[self.realm] = self.userCache[self.realm] or {}
+            self.userCache[self.realm][self.name] = self.userCache[self.realm][self.name] or {}
+            self.userCache[self.realm][self.name][k] = v
         end,
     })
 
@@ -193,14 +197,15 @@ function ChatFilter:INSPECT_READY(_, guid)
     end
 end
 
-function ChatFilter:BuildCharacterDb(name)
-    self.userCache[name] = self.userCache[name] or {}
-    self.userCache[name].timestamp = time()
-    return self.userCache[name]
+function ChatFilter:BuildCharacterDb(name, realm)
+    self.userCache[realm] = self.userCache[realm] or {}
+    self.userCache[realm][name] = self.userCache[realm][name] or {}
+    self.userCache[realm][name].timestamp = time()
+    return self.userCache[realm][name]
 end
 
-function ChatFilter:UpdateCharacter(name, data)
-    local db = self:BuildCharacterDb(name)
+function ChatFilter:UpdateCharacter(name, realm, data)
+    local db = self:BuildCharacterDb(name, realm)
 end
 
 --
@@ -222,6 +227,11 @@ local function containsKeyWord(text, keywords)
     return false
 end
 
+local function filterUserMessage(name, realm, message, lineId, guid, channelName, channelBaseName)
+    local userCache = ThisAddon.db.global.userCache
+    return false
+end
+
 local function ChatFilter_DebugPrintMessage(self, event, message, author, languageName, channelName, target, specialFlags, zoneChannelId, channelIndex, channelBaseName, languageId, lineId, guid, bnSenderId, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
     ADT_DebugPrint("message = ", message)
     ADT_DebugPrint("author = ", author)
@@ -238,8 +248,10 @@ local function ChatFilter_ChannelFilter(self, event, message, author, languageNa
                 debug_cnt = debug_cnt + 1
             end
             lastLineId = lineId
-            local filterMessage = filterIgnoreSpaces(message)
-            local blocked = containsKeyWord(filterMessage, blockedKeywords)
+            local name, realm = addonNS.GetShortName(author)
+            --local filterMessage = filterIgnoreSpaces(message)
+            --local blocked = containsKeyWord(filterMessage, blockedKeywords)
+            local blocked = filterUserMessage(name, realm, message, lineId, guid, channelName, channelBaseName)
             filter.lastLineId = lineId
             filter.lastBlockedState = blocked
             return blocked
@@ -279,7 +291,7 @@ function ChatFilter:RegisterFilter(evnet, filterFunc, enable, isInit)
     assert(evnet)
     if (self.filters[evnet]) then
         if (enable or isInit) then
-            if (isInit or (not self.filters[evnet].enabled)) then
+            if ((not self.filters[evnet].enabled) or isInit) then
                 assert(filterFunc)
                 ThisAddon:Print("ChatFrame_AddMessageEventFilter(): "..evnet)
                 ChatFrame_AddMessageEventFilter(evnet, filterFunc)

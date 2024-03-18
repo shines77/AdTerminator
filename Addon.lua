@@ -47,10 +47,9 @@ end))) or 0
 
 ---@class Addon: AceAddon-3.0, LibClass-2.0, AceConsole-3.0, AceEvent-3.0
 local Addon = LibStub('AceAddon-3.0'):NewAddon(addonName, 'LibClass-2.0', 'AceConsole-3.0', 'AceEvent-3.0')
-addonNS.Addon = Addon
-
+AdTerminator = Addon
 _G[addonName] = Addon
-local ThisAddon = _G[addonName]
+addonNS.Addon = Addon
 
 Addon.IsRetail = function()
     return (clientVerMajor >= 10) or (addonFlavor == "Retail")

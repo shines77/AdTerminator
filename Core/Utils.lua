@@ -15,10 +15,29 @@ function addonNS.GetFullName(name, realm)
         return name
     end
 
-    if not realm or realm == '' then
+    if (not realm) or (realm == '') then
         realm = GetNormalizedRealmName()
     end
     return name .. '-' .. realm
+end
+
+function addonNS.GetShortName(fullname)
+    if not fullname then
+        return
+    end
+    local first, last = fullname:find('-', nil, true)
+    if not first then
+        return fullname, GetNormalizedRealmName()
+    end
+
+    local name
+    if (first > 1) then
+        name = string.sub(fullname, 1, first - 1)
+    else
+        name = ""
+    end
+    local realm = string.sub(fullname, first + 1, string.len(fullname))
+    return name, realm
 end
 
 function addonNS.UnitName(unit)

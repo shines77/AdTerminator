@@ -1,6 +1,6 @@
 
 local addonName, addonNS = ...
-local ThisAddon = addonNS.addon
+local ThisAddon = _G[addonName]
 
 -- String functions
 local table_concat, table_insert = table.concat, table.insert
@@ -16,7 +16,7 @@ local Serializer = LibStub('AceSerializer-3.0')
 local Encoder = addonNS.Encoder
 
 ---@class ChatFilter: AceAddon-3.0, AceEvent-3.0, AceComm-3.0
-local ChatFilter = addonNS.addon:NewModule('ChatFilter', 'AceEvent-3.0', 'AceComm-3.0')
+local ChatFilter = ThisAddon:NewModule('ChatFilter', 'AceEvent-3.0', 'AceComm-3.0')
 ChatFilter.realm = nil
 ChatFilter.playerName = nil
 ChatFilter.userCache = nil
@@ -140,7 +140,7 @@ function ChatFilter:OnInitialize()
     self.realm = nil
     self.playerName = nil
     self.waitingItems = {}
-    self.userCache = addonNS.addon.db.global.userCache
+    self.userCache = ThisAddon.db.global.userCache
 
     self.db = setmetatable({}, {
         __index = function(_, k)
@@ -229,7 +229,7 @@ end
 
 local function filterUserMessage(name, realm, message, lineId, guid, channelName, channelBaseName)
     local userCache = ThisAddon.db.global.userCache
-    ChatFilter:UpdateCharacter(name, realm)
+    ChatFilter:UpdateCharacter(name, realm, nil)
     return false
 end
 
@@ -249,7 +249,7 @@ local function ChatFilter_ChannelFilter(self, event, message, author, languageNa
                 debug_cnt = debug_cnt + 1
             end
             lastLineId = lineId
-            --local name, realm = addonNS.GetShortName(author)
+            local name, realm = addonNS.GetShortName(author)
             --ADT_DebugPrint("name = ", name, ", realm = ", realm)
             local newBlocked = filterUserMessage(name, realm, message, lineId, guid, channelName, channelBaseName)
             local filterMessage = filterIgnoreSpaces(message)

@@ -3,6 +3,7 @@ local addonName, addonNS = ...
 
 local table_concat, table_insert = table.concat, table.insert
 local string_sub, string_byte, string_char, string_rep = string.sub, string.byte, string.char, string.rep
+local string_format = string.format
 
 -- Indent chars define, default is 2 space char
 local INDENTS = "  "
@@ -94,10 +95,10 @@ end
 local function dump_to_string(obj, addQuote)
     local str
     if type(obj) == 'string' then
-        if addQuote == true then
-            str = '\"'..obj..'\"'
-        else
+        if addQuote == nil or addQuote == false then
             str = obj
+        else
+            str = '\"'..obj..'\"'
         end
     elseif type(obj) == 'number' or type(obj) == 'boolean' or type(obj) == 'function' then
         str = tostring(obj)
@@ -121,7 +122,8 @@ function ADT_ToString(var)
     return dump_to_string(var, true)
 end
 
-function ADT_DebugPrint(txt)
+--[[
+function ADT_DebugPrint1(txt)
     if (addonNS.EnableDebug) then
         local text = dump_to_string(txt)
         DefaultChatFrame_AddMessage(text)
@@ -131,18 +133,28 @@ end
 function ADT_DebugPrint(prefix, txt)
     if (addonNS.EnableDebug) then
         local text = dump_to_string(txt)
-        DefaultChatFrame_AddMessage(tostring(prefix)..text)
+        if txt == nil then
+            local text = dump_to_string(txt)
+            DefaultChatFrame_AddMessage(text)
+        else
+            DefaultChatFrame_AddMessage(tostring(prefix)..text)
+        end
     end
 end
+--]]
 
-function ADT_DebugPrintv(...)
+function ADT_DebugPrint(...)
     if (addonNS.EnableDebug) then
         local argn = select('#', ...)
         local text = ""
         local i
         if argn == 0 then return end
-        for i = 1, argn - 1 do
-            text = text..dump_to_string(select(i, ...))
+        if (argn == 1) and (select(1, ...) == nil) then
+            return
+        end
+        for i = 1, argn do
+            local v = select(i, ...)
+            text = text..dump_to_string(v)
         end
         DefaultChatFrame_AddMessage(text)
     end

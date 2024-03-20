@@ -1,6 +1,6 @@
 
 local addonName, addonNS = ...
-local ThisAddon = _G[addonName]
+local ThisAddon = addonNS.addon
 
 -- String functions
 local table_concat, table_insert = table.concat, table.insert
@@ -16,9 +16,9 @@ local Serializer = LibStub('AceSerializer-3.0')
 local Encoder = addonNS.Encoder
 
 ---@class ChatFilter: AceAddon-3.0, AceEvent-3.0, AceComm-3.0
-local ChatFilter = addonNS.Addon:NewModule('ChatFilter', 'AceEvent-3.0', 'AceComm-3.0')
+local ChatFilter = addonNS.addon:NewModule('ChatFilter', 'AceEvent-3.0', 'AceComm-3.0')
 ChatFilter.realm = nil
-ChatFilter.name = nil
+ChatFilter.playerName = nil
 ChatFilter.userCache = nil
 
 local lastLineId = 0
@@ -41,7 +41,7 @@ local ignoreSymbols = {
     "‘", "’", "“", "”", "【", "】", "『", "』", "《", "》", "<", ">", "（", "）"
 }
 
-local blockedKeywordsStr = "招兵,手工,纯手,手动,柯基,科技,预约,点菜,大米,大侎,玉米,出米,收米,木木,站桩,观影,看雪,喝茶,电影,一级一付,一付一,代肝,帮肝,帮打,托管,可托,解放,代练,代充,带冲,作业,R点,先练,后付,出装,再付,见装付,纯需,大哥,大佬,包过,先R,押金,陪玩,一站式,估号,加V,歪歪,成品,跟打,代上,脱坑,连体,曙光,双马,马上开打,现在打,微信,徽信,薇信,WCL可查,不强制,无押,可躺,灵魂兽,大角,螃蟹,RO点,ro点,roll点,ＲＯ,i00,oo,交流,一键宏,W鑫,收鑫,一律我先,1%-%-1,1%-70%-80,55%-70%-80,淘宝,岚风小筑,龙腾四海,流云阁,流芸阁,《辉煌》,《青春》"
+local blockedKeywordsStr = "招兵,手工,纯手,手动,柯基,科技,预约,点菜,大米,大侎,玉米,出米,收米,木木,站桩,观影,看雪,喝茶,电影,一级一付,一付一,代肝,帮肝,帮打,托管,可托,解放,代练,代充,带冲,作业,R点,先练,后付,出装,再付,见装付,纯需,大哥,大佬,包过,先R,押金,陪玩,一站式,估号,加V,歪歪,成品,跟打,代上,脱坑,连体,曙光,双马,马上开打,现在打,微信,徽信,薇信,WCL可查,不强制,无押,可躺,灵魂兽,大角,螃蟹,RO点,ro点,roll点,ＲＯ,i00,oo,交流,一键宏,W鑫,收鑫,一律我先,1%-%-1,1%-70%-80,55%-70%-80,淘宝,岚风小筑,龙腾四海,流云阁,流芸阁,《辉煌》,《青春》,青 春"
 
 ChatFilter.filters = {}
 ChatFilter.filters["CHAT_MSG_CHANNEL"] = {
@@ -138,18 +138,18 @@ end
 
 function ChatFilter:OnInitialize()
     self.realm = nil
-    self.name = nil
+    self.playerName = nil
     self.waitingItems = {}
-    self.userCache = addonNS.Addon.db.global.userCache
+    self.userCache = addonNS.addon.db.global.userCache
 
     self.db = setmetatable({}, {
         __index = function(_, k)
-            return self.userCache[self.realm] and self.userCache[self.realm][self.name] and self.userCache[self.realm][self.name][k]
+            return self.userCache[self.realm] and self.userCache[self.realm][self.playerName] and self.userCache[self.realm][self.playerName][k]
         end,
         __newindex = function(_, k, v)
             self.userCache[self.realm] = self.userCache[self.realm] or {}
-            self.userCache[self.realm][self.name] = self.userCache[self.realm][self.name] or {}
-            self.userCache[self.realm][self.name][k] = v
+            self.userCache[self.realm][self.playerName] = self.userCache[self.realm][self.playerName] or {}
+            self.userCache[self.realm][self.playerName][k] = v
         end,
     })
 
@@ -229,6 +229,7 @@ end
 
 local function filterUserMessage(name, realm, message, lineId, guid, channelName, channelBaseName)
     local userCache = ThisAddon.db.global.userCache
+    ChatFilter:UpdateCharacter(name, realm)
     return false
 end
 
@@ -248,10 +249,11 @@ local function ChatFilter_ChannelFilter(self, event, message, author, languageNa
                 debug_cnt = debug_cnt + 1
             end
             lastLineId = lineId
-            local name, realm = addonNS.GetShortName(author)
-            --local filterMessage = filterIgnoreSpaces(message)
-            --local blocked = containsKeyWord(filterMessage, blockedKeywords)
-            local blocked = filterUserMessage(name, realm, message, lineId, guid, channelName, channelBaseName)
+            --local name, realm = addonNS.GetShortName(author)
+            --ADT_DebugPrint("name = ", name, ", realm = ", realm)
+            local newBlocked = filterUserMessage(name, realm, message, lineId, guid, channelName, channelBaseName)
+            local filterMessage = filterIgnoreSpaces(message)
+            local blocked = containsKeyWord(filterMessage, blockedKeywords)
             filter.lastLineId = lineId
             filter.lastBlockedState = blocked
             return blocked

@@ -24,6 +24,22 @@ ChatFilter.userCache = nil
 local lastLineId = 0
 local debug_cnt = 0
 
+--
+-- DateTime:
+--
+-- date("%m/%d/%y %H:%M:%S")
+-- date("%y/%m/%d %H:%M:%S")
+--
+
+--
+-- Time:
+--
+-- GetTimePreciseSec(): Returns a monotonic timestamp in seconds, with millisecond precision.
+-- debugprofilestop(): Returns the time in milliseconds since the last call to debugprofilestart().
+-- GetTime(): Returns the system uptime of your computer in seconds, with millisecond precision.
+--            This value is only updated once per rendered frame.
+--
+
 -- 忽略的空白字符
 local ignoreSpaces = {
     " ", "　",
@@ -158,6 +174,12 @@ function ChatFilter:OnInitialize()
 
     -- Print a message to the chat frame
     ThisAddon:Print("ChatFilter:OnInitialize Event Fired.")
+
+    --
+    -- https://wowpedia.fandom.com/wiki/API_GetTimePreciseSec
+    -- The first call to this function will always return zero.
+    --
+    local t = GetTimePreciseSec()
 end
 
 function ChatFilter:OnAlaCommand(_, msg, channel, sender)
@@ -240,6 +262,15 @@ local function ChatFilter_DebugPrintMessage(self, event, message, author, langua
     ADT_DebugPrint(text)
 end
 
+--
+-- See: https://wowwiki-archive.fandom.com/wiki/Events/Communication -- "CHAT_MSG_CHANNEL"
+--
+-- specialFlags (arg6): AFK/DND/GM "CHAT_FLAG_"..arg6 flags
+-- zoneChannelId (arg7): zone ID used for generic system channels (1 for General, 2 for Trade, 22 for LocalDefense, 23 for WorldDefense and 26 for LFG)
+-- channelIndex (arg8): channel number
+-- channelBaseName (arg9): channel name without number (this is _sometimes_ in lowercase)
+--                         zone is always current zone even if not the same as the channel name.
+--
 local function ChatFilter_ChannelFilter(self, event, message, author, languageName, channelName, target, specialFlags, zoneChannelId, channelIndex, channelBaseName, languageId, lineId, guid, bnSenderId, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
     local filter = ChatFilter.filters["CHAT_MSG_CHANNEL"]
     if filter.enabled then

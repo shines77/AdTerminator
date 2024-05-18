@@ -8,6 +8,7 @@ local string_format = string.format
 -- Indent chars define, default is 2 space char
 local INDENTS = "  "
 local TitleColor = "ffffd200"
+local MAX_DUMP_LINES = 22
 
 function table_len(tab)
     local length = 0
@@ -21,8 +22,8 @@ local function to_string(obj)
     local str
     if type(obj) == 'string' then
         str = '\"'..obj..'\"'
-    elseif type(obj) == 'number' or type(obj) == 'boolean' or type(obj) == 'function' then
-        str = tostring(obj)
+    --elseif type(obj) == 'number' or type(obj) == 'boolean' or type(obj) == 'function' then
+    --    str = tostring(obj)
     elseif type(obj) == 'nil' then
         str = '<nil>'
     elseif type(obj) == 'table' then
@@ -35,55 +36,110 @@ local function to_string(obj)
     return str
 end
 
-local function dump_sub_table(obj, depth)
+local function dump_sub_table(obj, depth, line)
     depth = depth or 0
+    if line >= MAX_DUMP_LINES or line == -1 then
+        return nil, line
+    end
     if type(obj) == 'table' then
-        local indent = string_rep(INDENTS, depth)
-        local sb = {}
-        table_insert(sb, "{\n")
-        local key, value
-        for k, v in pairs(obj) do
-            if type(k) == 'string' then
-                key = '"'..k..'"'
-            elseif type(k) == 'table' then
-                key = dump_sub_table(k, depth + 1)
-            elseif type(k) == 'nil' then
-                key = '<nil>'
-            else
-                -- number, boolean, function ....
-                key = tostring(k)
+        if table_len(obj) ~= 0 then
+            local indent = string_rep(INDENTS, depth)
+            local sb = {}
+            table_insert(sb, "{\n")
+            if line > 0 then
+                line = line + 1
             end
-            value = dump_sub_table(v, depth + 1)
-            table_insert(sb, indent .. INDENTS .. '['..key..'] = ' .. value .. ',\n')
+            local key, value
+            for k, v in pairs(obj) do
+                if line < MAX_DUMP_LINES and line > 0 then
+                    if type(k) == 'string' then
+                        key = '"'..k..'"'
+                    elseif type(k) == 'table' then
+                        key, line = dump_sub_table(k, depth + 1, line)
+                    elseif type(k) == 'nil' then
+                        key = '<nil>'
+                    else
+                        -- number, boolean, function ....
+                        key = tostring(k)
+                    end
+                    if key ~= nil then
+                        value, line = dump_sub_table(v, depth + 1, line)
+                        if value ~= nil then
+                            if line == -1 then
+                                table_insert(sb, indent..INDENTS..'['..key..'] = '..value..'')
+                            elseif line < MAX_DUMP_LINES then
+                                table_insert(sb, indent..INDENTS..'['..key..'] = '..value..',\n')
+                                if line > 0 then
+                                    line = line + 1
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            if line >= MAX_DUMP_LINES then
+                table_insert(sb, indent..INDENTS.."... <More> ...\n")
+                table_insert(sb, indent.."}")
+                line = -1
+            end
+            if line ~= -1 then
+                table_insert(sb, indent.."}")
+            end
+            return table_concat(sb), line
+        else
+            return "{ <empty> }", line
         end
-        table_insert(sb, indent .. "}")
-        return table_concat(sb)
     else
-        return to_string(obj)
+        return to_string(obj), line
     end
 end
 
 local function dump_table(obj)
     if type(obj) == 'table' then
-        local sb = {}
-        table_insert(sb, "."..INDENTS .. "{\n")
-        local key, value
-        for k, v in pairs(obj) do
-            if type(k) == 'string' then
-                key = '\"'..k..'\"'
-            elseif type(k) == 'table' then
-                key = dump_sub_table(k, 1)
-            elseif type(k) == 'nil' then
-                key = '<nil>'
-            else
-                -- number, boolean, function ....
-                key = tostring(k)
+        if table_len(obj) ~= 0 then
+            local line = 1
+            local sb = {}
+            table_insert(sb, "."..INDENTS.."{\n")
+            line = line + 1
+            local key, value
+            for k, v in pairs(obj) do
+                if line < MAX_DUMP_LINES and line > 0 then
+                    if type(k) == 'string' then
+                        key = '\"'..k..'\"'
+                    elseif type(k) == 'table' then
+                        key = dump_sub_table(k, 1, line)
+                    elseif type(k) == 'nil' then
+                        key = '<nil>'
+                    else
+                        -- number, boolean, function ....
+                        key = tostring(k)
+                    end
+                    if key ~= nil then
+                        value, line = dump_sub_table(v, 1, line)
+                        if value ~= nil and value ~= "" then
+                            if line == -1 then
+                                table_insert(sb, INDENTS..'['..key..'] = '..value..'')
+                            elseif line < MAX_DUMP_LINES then
+                                table_insert(sb, INDENTS..'['..key..'] = '..value..',\n')
+                                if line > 0 then
+                                    line = line + 1
+                                end
+                            end
+                        end
+                    end
+                end
             end
-            value = dump_sub_table(v, 1)
-            table_insert(sb, INDENTS .. '['..key..'] = ' .. value .. ',\n')
+            if line == -1 then
+                table_insert(sb, "\n")
+            end
+            if line >= MAX_DUMP_LINES or line == -1 then
+                table_insert(sb, INDENTS.."... <More> ...\n")
+            end
+            table_insert(sb, "}\n")
+            return table_concat(sb)
+        else
+            return "{ <empty> }"
         end
-        table_insert(sb, "}\n")
-        return table_concat(sb)
     else
         return to_string(obj)
     end
@@ -116,6 +172,10 @@ local function DefaultChatFrame_AddMessage(text)
     if (DEFAULT_CHAT_FRAME) then
         DEFAULT_CHAT_FRAME:AddMessage("|c"..TitleColor..addonName.."|r: "..text)
     end
+end
+
+function ADT_Dump(var)
+    return dump_to_string(var, false)
 end
 
 function ADT_ToString(var)

@@ -1,6 +1,12 @@
 
 local addonName, addonNS = ...
-local ThisAddon = _G[addonName]
+--local ThisAddon = _G[addonName]
+local ThisAddon = addonNS.addon
+
+ADT_DebugPrint("addonName = "..ADT_ToString(addonName))
+ADT_DebugPrint("addonNS = "..ADT_Dump(addonNS))
+ADT_DebugPrint("ThisAddon = "..ADT_Dump(ThisAddon))
+ADT_DebugPrint("ThisAddon.db = "..ADT_Dump(ThisAddon.db))
 
 -- String functions
 local table_concat, table_insert = table.concat, table.insert
@@ -158,6 +164,11 @@ function ChatFilter:OnInitialize()
     self.waitingItems = {}
     self.userCache = ThisAddon.db.global.userCache
 
+    ADT_DebugPrint("ChatFilter:OnInitialize() Fired.")
+
+    --ADT_DebugPrint("ThisAddon = "..ADT_Dump(ThisAddon))
+    ADT_DebugPrint("ThisAddon.db = "..ADT_Dump(ThisAddon.db))
+
     self.db = setmetatable({}, {
         __index = function(_, k)
             return self.userCache[self.realm] and self.userCache[self.realm][self.playerName] and self.userCache[self.realm][self.playerName][k]
@@ -289,7 +300,7 @@ local function ChatFilter_ChannelFilter(self, event, message, author, languageNa
             filter.lastBlockedState = blocked
             return blocked
         else
-            assert(lineId == filter.lastLineId)
+            --assert(lineId == filter.lastLineId)
             return filter.lastBlockedState
         end
     else
@@ -312,7 +323,7 @@ local function ChatFilter_YellFilter(self, event, message, author, languageName,
             filter.lastBlockedState = blocked
             return blocked
         else
-            assert(lineId == filter.lastLineId)
+            --assert(lineId == filter.lastLineId)
             return filter.lastBlockedState
         end
     else

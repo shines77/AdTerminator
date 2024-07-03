@@ -122,7 +122,7 @@ function Addon:OnInitialize()
 
     self:Print("profile = ", profile)
 
-    ADT_DebugPrint("profile = "..ADT_Dump(profile))
+    --ADT_DebugPrint("profile = "..ADT_Dump(profile))
 end
 
 function Addon:OnEnable()

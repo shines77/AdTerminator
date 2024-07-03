@@ -3,10 +3,10 @@ local addonName, addonNS = ...
 --local ThisAddon = _G[addonName]
 local ThisAddon = addonNS.addon
 
-ADT_DebugPrint("addonName = "..ADT_ToString(addonName))
-ADT_DebugPrint("addonNS = "..ADT_Dump(addonNS))
-ADT_DebugPrint("ThisAddon = "..ADT_Dump(ThisAddon))
-ADT_DebugPrint("ThisAddon.db = "..ADT_Dump(ThisAddon.db))
+--ADT_DebugPrint("addonName = "..ADT_ToString(addonName))
+--ADT_DebugPrint("addonNS = "..ADT_Dump(addonNS))
+--ADT_DebugPrint("ThisAddon = "..ADT_Dump(ThisAddon))
+--ADT_DebugPrint("ThisAddon.db = "..ADT_Dump(ThisAddon.db))
 
 -- String functions
 local table_concat, table_insert = table.concat, table.insert
@@ -167,7 +167,7 @@ function ChatFilter:OnInitialize()
     ADT_DebugPrint("ChatFilter:OnInitialize() Fired.")
 
     --ADT_DebugPrint("ThisAddon = "..ADT_Dump(ThisAddon))
-    ADT_DebugPrint("ThisAddon.db = "..ADT_Dump(ThisAddon.db))
+    --ADT_DebugPrint("ThisAddon.db = "..ADT_Dump(ThisAddon.db))
 
     self.db = setmetatable({}, {
         __index = function(_, k)
@@ -267,10 +267,10 @@ local function filterUserMessage(name, realm, message, lineId, guid, channelName
 end
 
 local function ChatFilter_DebugPrintMessage(self, event, message, author, languageName, channelName, target, specialFlags, zoneChannelId, channelIndex, channelBaseName, languageId, lineId, guid, bnSenderId, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
-    ADT_DebugPrint("message = ", message)
-    ADT_DebugPrint("author = ", author)
+    --ADT_DebugPrint("message = ", message)
+    --ADT_DebugPrint("author = ", author)
     local text = string_format("[%d][%d.%s][%s]: [%s]", lineId, channelIndex, channelBaseName, author, message)
-    ADT_DebugPrint(text)
+    --ADT_DebugPrint(text)
 end
 
 --

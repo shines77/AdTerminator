@@ -118,9 +118,7 @@ function Addon:OnInitialize()
     self:RegisterChatCommand("print", "PrintCmd")
 
     -- Print a message to the chat frame
-    self:Print("AdTerminator:OnInitialize() Fired.")
-
-    self:Print("profile = ", profile)
+    --self:Print("AdTerminator:OnInitialize() Fired.")
 
     --ADT_DebugPrint("profile = "..ADT_Dump(profile))
 end
@@ -132,14 +130,14 @@ function Addon:OnEnable()
     --self:RegisterMessage('INSPECT_READY')
 
     -- Print a message to the chat frame
-    self:Print("AdTerminator:OnEnable() Fired.")
+    --self:Print("AdTerminator:OnEnable() Fired.")
 end
 
 function Addon:OnDisable()
     -- Called when the addon is disabled
 
     -- Print a message to the chat frame
-    self:Print("AdTerminator:OnDisable() Fired.")
+    --self:Print("AdTerminator:OnDisable() Fired.")
 end
 
 function Addon:OnModuleCreated(module)

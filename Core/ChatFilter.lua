@@ -184,7 +184,7 @@ function ChatFilter:OnInitialize()
     --ADT_DebugPrint("blockedKeywords = ", blockedKeywords)
 
     -- Print a message to the chat frame
-    ThisAddon:Print("ChatFilter:OnInitialize Event Fired.")
+    --ThisAddon:Print("ChatFilter:OnInitialize Event Fired.")
 
     --
     -- https://wowpedia.fandom.com/wiki/API_GetTimePreciseSec
@@ -221,7 +221,7 @@ function ChatFilter:OnEnable()
     self:RegisterFilters(true, true)
 
     -- Print a message to the chat frame
-    ThisAddon:Print("ChatFilter:OnEnable Event Fired.")
+    --ThisAddon:Print("ChatFilter:OnEnable Event Fired.")
 end
 
 function ChatFilter:INSPECT_READY(_, guid)
@@ -337,14 +337,14 @@ function ChatFilter:RegisterFilter(evnet, filterFunc, enable, isInit)
         if (enable or isInit) then
             if ((not self.filters[evnet].enabled) or isInit) then
                 assert(filterFunc)
-                ThisAddon:Print("ChatFrame_AddMessageEventFilter(): "..evnet)
+                --ThisAddon:Print("ChatFrame_AddMessageEventFilter(): "..evnet)
                 ChatFrame_AddMessageEventFilter(evnet, filterFunc)
                 self.filters[evnet].enabled = true
             end
         else
             if (self.filters[evnet].enabled) then
                 assert(filterFunc)
-                ThisAddon:Print("ChatFrame_RemoveMessageEventFilter(): "..evnet)
+                --ThisAddon:Print("ChatFrame_RemoveMessageEventFilter(): "..evnet)
                 ChatFrame_RemoveMessageEventFilter(evnet, filterFunc)
                 self.filters[evnet].enabled = false
             end
